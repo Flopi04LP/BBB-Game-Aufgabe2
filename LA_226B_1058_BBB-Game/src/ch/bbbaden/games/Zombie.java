@@ -5,7 +5,9 @@
  */
 package ch.bbbaden.games;
 
+import java.util.Random;
 import net.slashie.libjcsi.CSIColor;
+import net.slashie.libjcsi.CharKey;
 import net.slashie.libjcsi.wswing.WSwingConsoleInterface;
 
 /**
@@ -16,6 +18,9 @@ public class Zombie implements GameObject {
 
     private int x;
     private int y;
+    private final String drawstring = "Z";
+    private boolean isdead = false;
+    private CSIColor csicolorzombie = CSIColor.RED_PIGMENT;
 
     public Zombie(int x, int y) {
         this.x = x;
@@ -24,32 +29,55 @@ public class Zombie implements GameObject {
 
     @Override
     public void update(WSwingConsoleInterface csi, Player player) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        getX();
+        getY();
     }
 
     @Override
     public String getDrawString() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return drawstring;
     }
 
     @Override
     public boolean isDead() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return false;
     }
 
     @Override
     public int getX() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        /*Random rand = new Random();
+        int randomX = rand.nextInt(2);
+        
+        switch (randomX) {
+            case 1:
+                x= x - 1;
+                break;
+            case 2:
+                x = x + 1;
+                break;
+        }*/
+        return x;
     }
 
     @Override
     public int getY() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        /*Random rand = new Random();
+        int randomY = rand.nextInt(2);
+        
+        switch (randomY) {
+            case CharKey.UARROW:
+                y= y - 1;
+                break;
+            case CharKey.DARROW:
+                y = y + 1;
+                break;
+        }*/
+        return y;
     }
 
     @Override
     public CSIColor getColor() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return csicolorzombie;
     }
 
 }

@@ -6,6 +6,7 @@
 package ch.bbbaden.games;
 
 import net.slashie.libjcsi.CSIColor;
+import net.slashie.libjcsi.CharKey;
 import net.slashie.libjcsi.wswing.WSwingConsoleInterface;
 
 /**
@@ -14,10 +15,15 @@ import net.slashie.libjcsi.wswing.WSwingConsoleInterface;
  */
 public class Player implements GameObject {
 
-    private int health;
-    private int points;
+    private int health = 10;
+    private int points = 0;
     private int x;
+    private int playerNextX = 0;
     private int y;
+    private int playerNextY = 0;
+    private final String drawstring = "P";
+    private boolean isDead = false;
+    private CSIColor csicolorplayer = CSIColor.ATOMIC_TANGERINE;
 
     public Player(int x, int y) {
         this.x = x;
@@ -25,6 +31,70 @@ public class Player implements GameObject {
     }
 
     public void action(int keyChar, WSwingConsoleInterface csi) {
+        switch (keyChar) {
+            case CharKey.UARROW:
+                playerNextY = y - 1;
+                break;
+            case CharKey.DARROW:
+                playerNextY = y + 1;
+                break;
+            case CharKey.LARROW:
+                playerNextX = x - 1;
+                break;
+            case CharKey.RARROW:
+                playerNextX = x + 1;
+                break;
+            case CharKey.Q:
+                System.exit(0);
+                break;
+            case CharKey.q:
+                System.exit(0);
+                break;
+        }
+        System.out.println("X: " + playerNextX);
+        System.out.println("Y: " + playerNextY);
+
+        switch (playerNextX) {
+            case -1:
+                playerNextX = x;
+                break;
+            case 79:
+                playerNextX = x;
+                break;
+            default:
+                playerNextX = playerNextX;
+
+                break;
+        }
+        switch (playerNextY) {
+            case -1:
+                playerNextY = y;
+                break;
+            case 24:
+                playerNextY = y;
+                break;
+            default:
+                playerNextY = playerNextY;
+                break;
+        }
+
+        if (csi.peekChar(playerNextX, playerNextY) == 'X') {
+            System.out.println("OHOH TRAP!");
+            health = health - 1;
+        }
+        if (csi.peekChar(playerNextX, playerNextY) == 'M') {
+            System.out.println("Ein Medikit wuhuu!");
+            if (health<5) {
+                addHealth(5);
+            }
+            
+        }
+        if (csi.peekChar(playerNextX, playerNextY) == 'Z') {
+            System.out.println("EIN ZOMBIE!");
+            health = health - 5;
+        }
+        x = playerNextX;
+        y = playerNextY;
 
     }
 
@@ -51,12 +121,12 @@ public class Player implements GameObject {
 
     @Override
     public String getDrawString() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return drawstring;
     }
 
     @Override
     public boolean isDead() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return isDead;
     }
 
     @Override
@@ -71,7 +141,7 @@ public class Player implements GameObject {
 
     @Override
     public CSIColor getColor() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return csicolorplayer;
     }
 
 }

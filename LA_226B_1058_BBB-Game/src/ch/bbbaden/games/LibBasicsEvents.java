@@ -2,6 +2,9 @@
  */
 package ch.bbbaden.games;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import net.slashie.libjcsi.CSIColor;
 import net.slashie.libjcsi.CharKey;
 import net.slashie.libjcsi.wswing.WSwingConsoleInterface;
@@ -13,7 +16,10 @@ import net.slashie.libjcsi.wswing.WSwingConsoleInterface;
 public class LibBasicsEvents {
 
     private final WSwingConsoleInterface csi;
-
+    private final List<GameObject> gameobjects = new ArrayList<>();     //List for Gameobjects zb. Zombie, Person...
+    Random rand = new Random();
+    Player player = new Player(0, 0);
+    
     public LibBasicsEvents() {
         csi = new WSwingConsoleInterface("BBB-Game");
         System.out.println("X-Dimension: " + csi.getXdim());
@@ -21,81 +27,41 @@ public class LibBasicsEvents {
     }
 
     public void run() {
-        int playerX = 0;
-        int playerNextX = 0;
-        int playerY = 0;
-        int playerNextY = 0;
-        int anzahlZuege = 0;
+        boolean isdead = false;
+        int health = 0;
         // Draw static part
         setupGameBoard();
+        setupGameObjects();
         boolean exit = false;
-        while (!exit) {
+        while (!isdead) {
             // Draw game board
             csi.restore();
-            
+
+            for (GameObject gm : gameobjects) {
+                gm.update(csi, (Player) gameobjects.get(0));
+                csi.print(gm.getX(), gm.getY(), gm.getDrawString(), gm.getColor());
+
+            }
             // Draw dynamic part    
-            csi.print(0, 0, Integer.toString(anzahlZuege), CSIColor.AQUA);
-            csi.print(playerX, playerY, "@", CSIColor.ATOMIC_TANGERINE);
+            csi.print(0, 0,"Health:"+ Integer.toString(player.getHealth()), CSIColor.WHITE);
+
             // Push to screen
             csi.refresh();
 
             // Wait for key
             int key = csi.inkey().code;
-            switch (key) {
-                case CharKey.UARROW:
-                    playerNextY = playerY - 1;
-                    break;
-                case CharKey.DARROW:
-                    playerNextY = playerY + 1;
-                    break;
-                case CharKey.LARROW:
-                    playerNextX = playerX - 1;
-                    break;
-                case CharKey.RARROW:
-                    playerNextX = playerX + 1;
-                    break;
-                case CharKey.Q:
-                case CharKey.q:
-                    exit = true;
+            Player player = (Player) gameobjects.get(0);
+            player.action(key, csi);
+            gameobjects.set(0, player);
+            
+            
+            
+            if (player.getHealth()<=0) {
+                isdead=true;
             }
-            System.out.println("X: " + playerNextX);
-            System.out.println("Y: " + playerNextY);
 
-            switch (playerNextX) {
-                case -1:
-                    playerNextX = playerX;
-                    break;
-                case 79:
-                    playerNextX = playerX;
-                    break;
-                default:
-                    playerNextX = playerNextX;
-                    anzahlZuege++;
-                    break;
-            }
-            switch (playerNextY) {
-                case -1:
-                    playerNextY = playerY;
-                    break;
-                case 24:
-                    playerNextY = playerY;
-                    break;
-                default:
-                    anzahlZuege++;
-                    playerNextY = playerNextY;
-                    break;
-            }
-            if (csi.peekChar(playerNextX, playerNextY) == '#') {
-                playerNextX = playerX;
-                playerNextY = playerY;
-                System.out.println("OHOH Objekt im Weg!");
-                anzahlZuege--;
-            }
-            playerX = playerNextX;
-            playerY = playerNextY;
-            anzahlZuege = anzahlZuege - 1;
         }
-        csi.print(1, 20, "Press space to exit");
+        csi.print(1, 20, "YOU LOST! Press space to exit");
         csi.refresh();
         csi.waitKey(CharKey.SPACE);
         System.exit(0);
@@ -103,18 +69,44 @@ public class LibBasicsEvents {
 
     private void setupGameBoard() {
         csi.cls();
-        csi.print(5, 5, "Welcome to TEH game!", CSIColor.BABY_BLUE);
-        csi.print(10, 9, "##############", CSIColor.LIGHT_GRAY);
-        csi.print(10, 10, "#  #         #", CSIColor.LIGHT_GRAY);
-        csi.print(10, 11, "#  ####      #", CSIColor.LIGHT_GRAY);
-        csi.print(10, 12, "#      #     #", CSIColor.LIGHT_GRAY);
-        csi.print(10, 13, "#       #    #", CSIColor.LIGHT_GRAY);
-        csi.print(10, 14, "#   ######   #", CSIColor.LIGHT_GRAY);
         csi.saveBuffer();
     }
-    
-    private void setupGameObjects(){
+
+    private void setupGameObjects() {
+
+        //Add Player
         
+        System.out.println("x: " + player.getX() + "  y: " + player.getY());
+        gameobjects.add(player);
+
+        //Add Medkits
+       for (int i = 0; i < 10; i++) {
+            Random rand = new Random();
+            int random = rand.nextInt(79);
+            int randomtwo = rand.nextInt(25);
+            gameobjects.add(new Medikit(random, randomtwo));
+            
+        }
+        
+        
+
+        //Add Traps
+        for (int i = 0; i < 50; i++) {
+            Random rand = new Random();
+            int random = rand.nextInt(79);
+            int randomtwo = rand.nextInt(25);
+            gameobjects.add(new Trap(random, randomtwo));
+            
+        }
+        
+        //Add Zombies
+        for (int i = 0; i < 10; i++) {
+            Random rand = new Random();
+            int random = rand.nextInt(79);
+            int randomtwo = rand.nextInt(25);
+            gameobjects.add(new Zombie(random, randomtwo));
+            
+        }
     }
 
 }
